@@ -7,9 +7,9 @@
 ![license](https://img.shields.io/github/license/jerryc127/hexo-theme-butterfly?color=FF5531)
 
 
-預覽: 👍 [Butterfly](https://demo.jerryc.me/)  ||  🤞 [JerryC](https://jerryc.me/)
+預覽: 👍 [Butterfly](https://butterfly.js.org/)  ||  🤞 [JerryC](https://jerryc.me/)
 
-文檔: 📖 [Butterfly Docs](https://demo.jerryc.me/posts/21cfbf15/)
+文檔: 📖 [Butterfly Docs](https://butterfly.js.org/posts/21cfbf15/)
 
 一款基於[hexo-theme-melody](https://github.com/Molunerfinn/hexo-theme-melody)修改的主題
 
@@ -71,7 +71,7 @@ theme: butterfly
 - [x] 顯示相關文章
 - [x] 過期文章提醒
 - [x] 多種分享系統（AddThis/Sharejs/Addtoany）
-- [X] 多種評論系統（Disqus/Disqusjs/Livere/Gitalk/Valine/Utterances/Facebook Comments）
+- [X] 多種評論系統（Disqus/Disqusjs/Livere/Gitalk/Valine/Utterances/Facebook Comments/Twikoo）
 - [x] 支持雙評論部署
 - [x] 多種在線聊天（Chatra/Tidio/Daovoice/Gitter/Crisp）
 - [x] 多種分析系統（百度分析/谷歌分析/騰訊分析/CNZZ分析）
@@ -94,5 +94,3 @@ theme: butterfly
 ![](https://cdn.jsdelivr.net/gh/jerryc127/CDN/img/theme-butterfly-readme-homepage-1.png)
 
 ![](https://cdn.jsdelivr.net/gh/jerryc127/CDN/img/theme-butterfly-readme-homepage-2.png)
-
-![](https://cdn.jsdelivr.net/gh/jerryc127/CDN/img/theme-butterfly-readme-post.png)
