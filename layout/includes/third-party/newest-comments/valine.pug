@@ -1,12 +1,15 @@
+- let default_avatar = theme.valine.avatar
+
 script(src="https://cdn.jsdelivr.net/npm/blueimp-md5@2.17.0/js/md5.min.js")
 script.
   window.addEventListener('load', () => {
     const changeContent = (content) => {
       if (content === '') return content
 
+      content = content.replace(/<img.*?src="(.*?)"?[^\>]+>/ig, '[!{_p("aside.card_newest_comments.image")}]') // replace image link
+      content = content.replace(/<a[^>]+?href=["']?([^"']+)["']?[^>]*>([^<]+)<\/a>/gi, '[!{_p("aside.card_newest_comments.link")}]') // replace url
+      content = content.replace(/<pre><code>.*?<\/pre>/gi, '[!{_p("aside.card_newest_comments.code")}]') // replace code
       content = content.replace(/<[^>]+>/g,"") // remove html tag
-      content = content.replace(/(http(s?):)([/|.|\w|\s|-])*\.(?:jpg|jpeg|gif|png|webp)/g, '') // remove image link
-      content = content.replace(/(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/gi, '') // remove url
 
       if (content.length > 150) {
         content = content.substring(0,150) + '...'
@@ -16,8 +19,7 @@ script.
 
     const getIcon = (icon, mail) => {
       if (icon) return icon
-      
-      let defaultIcon = '!{ theme.newest_comments.leancloud.default_avatar ? `?d=${theme.newest_comments.leancloud.default_avatar}` : ''}'
+      let defaultIcon = '!{ default_avatar ? `?d=${default_avatar}` : ''}'
       let iconUrl = `https://gravatar.loli.net/avatar/${md5(mail.toLowerCase()) + defaultIcon}`
       return iconUrl
     }
@@ -30,16 +32,13 @@ script.
           result += '<div class=\'aside-list-item\'>'
 
           if (!{theme.newest_comments.avatar}) {
-            let name = 'src'
-            if(!{theme.lazyload.enable}) {
-              name = 'data-lazy-src'
-            }
-            result += `<a href='${array[i].url}' class="thumbnail"><img ${name}='${getIcon(array[i].avatar, array[i].mail)}' alt='${array[i].nick}'></a>`
+            const name = '!{theme.lazyload.enable ? "data-lazy-src" : "src"}'
+            result += `<a href='${array[i].url}' class='thumbnail'><img ${name}='${array[i].avatar}' alt='${array[i].nick}'></a>`
           }
 
           result += `<div class='content'>
           <a class='comment' href='${array[i].url}'>${array[i].content}</a>
-          <div class='name'><span>${array[i].nick}</span><time> / ${btf.diffDate(array[i].date, true)}</time></div>
+          <div class='name'><span>${array[i].nick} / </span><time datetime="${array[i].date}">${btf.diffDate(array[i].date, true)}</time></div>
           </div></div>`
         }
       } else {
@@ -53,18 +52,13 @@ script.
     }
 
     const getComment = () => {
-        let serverURL = ''
-        if (!{Boolean(theme.newest_comments.leancloud.serverURL)}) {
-          serverURL = '!{theme.newest_comments.leancloud.serverURL}'
-        } else {
-          serverURL = 'https://!{theme.newest_comments.leancloud.appId.substring(0,8)}.api.lncldglobal.com'
-        }
+      const serverURL = '!{theme.valine.serverURLs || `https://${theme.valine.appId.substring(0,8)}.api.lncldglobal.com` }'
 
       var settings = {
         "method": "GET",
         "headers": {
-          "X-LC-Id": '!{theme.newest_comments.leancloud.appId}',
-          "X-LC-Key": '!{theme.newest_comments.leancloud.appKey}',
+          "X-LC-Id": '!{theme.valine.appId}',
+          "X-LC-Key": '!{theme.valine.appKey}',
           "Content-Type": "application/json"
         },
       }
@@ -74,15 +68,14 @@ script.
         .then(data => {
           const valineArray = data.results.map(function (e) {
             return {
-              'avatar': e.QQAvatar,
+              'avatar': getIcon(e.QQAvatar, e.mail),
               'content': changeContent(e.comment),
-              'mail': e.mail,
               'nick': e.nick,
-              'url': e.url,
-              'date': e.createdAt,
+              'url': e.url + '#' + e.objectId,
+              'date': e.updatedAt,
             }
           })
-          saveToLocal.set('leancloud-newest-comments', JSON.stringify(valineArray), 10/(60*24))
+          saveToLocal.set('valine-newest-comments', JSON.stringify(valineArray), !{theme.newest_comments.storage}/(60*24))
           generateHtml(valineArray)
         }).catch(e => {
           const $dom = document.querySelector('#card-newest-comments .aside-list')
@@ -92,7 +85,7 @@ script.
 
     const newestCommentInit = () => {
       if (document.querySelector('#card-newest-comments .aside-list')) {
-        const data = saveToLocal.get('leancloud-newest-comments')
+        const data = saveToLocal.get('valine-newest-comments')
         if (data) {
           generateHtml(JSON.parse(data))
         } else {
